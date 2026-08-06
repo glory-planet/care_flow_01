@@ -41,7 +41,6 @@ async function apiFetch(path, options = {}) {
   const res = await fetch(url, {
     ...options,
     headers,
-    credentials: 'include',
   });
   return res;
 }

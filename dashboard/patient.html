@@ -373,17 +373,91 @@ function renderExercises() {
     list.appendChild(li);
   });
 
-  // Start button handler
+  // Start button handler — 브라우저에서 웹캠 녹화 후 S3 업로드
   list.querySelectorAll('.start-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const key = btn.dataset.key;
-      const res = await apiFetch('/api/start-exercise', {
-        method: 'POST',
-        body: JSON.stringify({ exercise_key: key, patient_id: patientId }),
-      });
-      if (res.ok) {
-        btn.textContent = '실행 중...';
-        btn.disabled = true;
+      btn.textContent = '카메라 준비 중...';
+      btn.disabled = true;
+
+      try {
+        // 웹캠 접근
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+
+        // 녹화 UI 표시
+        const overlay = document.createElement('div');
+        overlay.id = 'recording-overlay';
+        overlay.innerHTML = `
+          <style>
+            #recording-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
+            #recording-overlay video { width:min(640px,90vw); border-radius:12px; transform:scaleX(-1); }
+            #recording-overlay .rec-indicator { color:#ff4444; font-size:1.2rem; font-weight:bold; animation:blink 1s infinite; }
+            @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+            #recording-overlay .stop-btn { padding:14px 36px; border:none; border-radius:12px; background:#c45544; color:white; font-size:1rem; font-weight:600; cursor:pointer; }
+          </style>
+          <div class="rec-indicator">● 녹화 중</div>
+          <video autoplay playsinline muted></video>
+          <button class="stop-btn">운동 완료 (녹화 종료)</button>
+        `;
+        document.body.appendChild(overlay);
+
+        const videoEl = overlay.querySelector('video');
+        videoEl.srcObject = stream;
+
+        // MediaRecorder로 녹화 시작
+        const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+        const chunks = [];
+        recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+
+        const recordingDone = new Promise(resolve => {
+          recorder.onstop = () => resolve();
+        });
+
+        recorder.start();
+
+        // 종료 버튼
+        overlay.querySelector('.stop-btn').addEventListener('click', () => {
+          recorder.stop();
+          stream.getTracks().forEach(t => t.stop());
+        });
+
+        await recordingDone;
+        overlay.innerHTML = '<div style="color:white;font-size:1.2rem;">업로드 중...</div>';
+
+        // S3 Presigned URL 요청
+        const sessionId = crypto.randomUUID().slice(0, 8);
+        const urlRes = await apiFetch('/api/upload-url', {
+          method: 'POST',
+          body: JSON.stringify({ patient_id: patientId, session_id: sessionId, exercise_key: key }),
+        });
+        const { upload_url, s3_key } = await urlRes.json();
+
+        // S3에 직접 업로드
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        await fetch(upload_url, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'video/webm' },
+          body: blob,
+        });
+
+        // 세션 기록 저장 요청
+        await apiFetch('/api/save-recording', {
+          method: 'POST',
+          body: JSON.stringify({
+            patient_id: patientId,
+            session_id: sessionId,
+            exercise_key: key,
+            video_s3_key: s3_key,
+          }),
+        });
+
+        overlay.innerHTML = '<div style="color:#4caf50;font-size:1.2rem;">✓ 업로드 완료! 분석이 진행됩니다.</div>';
+        setTimeout(() => { overlay.remove(); location.reload(); }, 2000);
+
+      } catch (err) {
+        alert('카메라 접근에 실패했습니다: ' + err.message);
+        btn.textContent = '시작';
+        btn.disabled = false;
       }
     });
   });

@@ -58,6 +58,11 @@ def index():
     return send_from_directory(DASHBOARD_DIR, "login.html")
 
 
+@app.route("/login.html")
+def login_page():
+    return send_from_directory(DASHBOARD_DIR, "login.html")
+
+
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
@@ -206,6 +211,46 @@ def get_upload_url():
         return jsonify({"error": "patient_id, session_id, exercise_key required"}), 400
     result = generate_upload_url(patient_id, session_id, exercise_key)
     return jsonify(result)
+
+
+@app.route("/api/save-recording", methods=["POST"])
+def save_recording():
+    """브라우저에서 녹화 완료 후 세션을 기록한다. 분석은 비동기로 진행."""
+    data = request.get_json(silent=True) or {}
+    patient_id = data.get("patient_id")
+    session_id = data.get("session_id")
+    exercise_key = data.get("exercise_key")
+    video_s3_key = data.get("video_s3_key")
+
+    if not all([patient_id, session_id, exercise_key]):
+        return jsonify({"error": "missing required fields"}), 400
+
+    from datetime import timezone
+    now = datetime.now(timezone.utc).isoformat()
+
+    # 배정 정보에서 target_reps 조회
+    assignments = get_patient_assignments(STORE_PATH, patient_id)
+    target_reps = None
+    for a in assignments:
+        if a.get("exercise_key") == exercise_key:
+            target_reps = a.get("target_reps")
+            break
+
+    # 세션 기록 저장 (분석 대기 상태)
+    append_session(STORE_PATH, {
+        "session_id": session_id,
+        "patient_id": patient_id,
+        "exercise_key": exercise_key,
+        "started_at": now,
+        "ended_at": now,
+        "video_s3_key": video_s3_key,
+        "final_count": None,
+        "target_reached": None,
+        "source": "browser_recording",
+        "analysis_status": "pending",
+    })
+
+    return jsonify({"ok": True, "session_id": session_id, "message": "녹화 저장 완료. 분석이 진행됩니다."})
 
 
 @app.route("/api/patients", methods=["GET"])

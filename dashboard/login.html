@@ -237,7 +237,11 @@
         if (data.token) Auth.setToken(data.token);
         Auth.setUser({ username, role: data.role, name: data.name, patient_id: data.patient_id, patient_ids: data.patient_ids });
         // 역할에 따라 리다이렉트
-        window.location.href = '/dashboard';
+        if (data.role === 'doctor') {
+          window.location.href = '/doctor.html';
+        } else {
+          window.location.href = '/patient.html';
+        }
       } else {
         errorMsg.textContent = '아이디 또는 비밀번호가 올바르지 않습니다.';
       }
