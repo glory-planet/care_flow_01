@@ -96,7 +96,10 @@ def build():
                 zf.write(file_path, arc_name)
 
     # 정리
-    shutil.rmtree(BUILD_DIR)
+    try:
+        shutil.rmtree(BUILD_DIR)
+    except Exception:
+        pass  # OneDrive 등에서 파일 잠김 시 무시
 
     size_mb = os.path.getsize(OUTPUT_ZIP) / (1024 * 1024)
     print(f"Created {OUTPUT_ZIP} ({size_mb:.1f} MB)")
