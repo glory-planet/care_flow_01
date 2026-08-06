@@ -2,15 +2,17 @@
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Sid": "CloudWatchLogs",
       "Effect": "Allow",
       "Action": [
         "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents"
       ],
-      "Resource": "arn:aws:logs:*:*:*"
+      "Resource": "arn:aws:logs:us-east-1:769456250598:*"
     },
     {
+      "Sid": "DynamoDBAccess",
       "Effect": "Allow",
       "Action": [
         "dynamodb:GetItem",
@@ -24,6 +26,7 @@
       "Resource": "arn:aws:dynamodb:us-east-1:769456250598:table/CareFlow-*"
     },
     {
+      "Sid": "S3VideoAccess",
       "Effect": "Allow",
       "Action": [
         "s3:GetObject",
@@ -33,13 +36,30 @@
       "Resource": "arn:aws:s3:::careflow-exercise-videos/*"
     },
     {
+      "Sid": "S3KBDocumentsRead",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::careflow-kb-documents",
+        "arn:aws:s3:::careflow-kb-documents/*"
+      ]
+    },
+    {
+      "Sid": "BedrockInvoke",
       "Effect": "Allow",
       "Action": [
         "bedrock:InvokeModel"
       ],
-      "Resource": "*"
+      "Resource": [
+        "arn:aws:bedrock:us-east-1::foundation-model/anthropic.*",
+        "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-embed-text-v2:0"
+      ]
     },
     {
+      "Sid": "CognitoAuth",
       "Effect": "Allow",
       "Action": [
         "cognito-idp:InitiateAuth",
@@ -49,10 +69,20 @@
       "Resource": "arn:aws:cognito-idp:us-east-1:769456250598:userpool/us-east-1_5NS1dVpbR"
     },
     {
+      "Sid": "S3VectorsAccess",
       "Effect": "Allow",
       "Action": [
         "s3vectors:QueryVectors",
         "s3vectors:PutVectors"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "KMSDecrypt",
+      "Effect": "Allow",
+      "Action": [
+        "kms:Decrypt",
+        "kms:GenerateDataKey"
       ],
       "Resource": "*"
     }
