@@ -25,6 +25,7 @@ from dashboard.exercise_library import EXERCISE_NAMES
 from dashboard.hospital_rag import lookup_patient_by_unique_id
 from dashboard.kakao_skill import handle_skill_request
 from dashboard.llm_client import generate_reply
+from dashboard.s3_client import generate_upload_url, generate_download_url
 
 PATIENT_NAME = "홍은결"
 DASHBOARD_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -148,10 +149,32 @@ def get_sessions():
 @app.route("/api/video/<session_id>", methods=["GET"])
 def get_video(session_id):
     store = load_store(STORE_PATH)
-    session = next((s for s in store["sessions"] if s["session_id"] == session_id), None)
-    if session is None or not session.get("video_path") or not os.path.exists(session["video_path"]):
+    sess = next((s for s in store["sessions"] if s["session_id"] == session_id), None)
+    if sess is None:
         return jsonify({"error": "video not found"}), 404
-    return send_file(session["video_path"])
+    s3_key = sess.get("video_s3_key")
+    if s3_key:
+        # S3에 저장된 영상 — Presigned URL로 리다이렉트
+        url = generate_download_url(s3_key)
+        return redirect(url)
+    # 레거시: 로컬 파일 경로
+    video_path = sess.get("video_path")
+    if not video_path or not os.path.exists(video_path):
+        return jsonify({"error": "video not found"}), 404
+    return send_file(video_path)
+
+
+@app.route("/api/upload-url", methods=["POST"])
+def get_upload_url():
+    """영상 업로드용 S3 Presigned URL을 발급한다."""
+    data = request.get_json(silent=True) or {}
+    patient_id = data.get("patient_id")
+    session_id = data.get("session_id")
+    exercise_key = data.get("exercise_key")
+    if not all([patient_id, session_id, exercise_key]):
+        return jsonify({"error": "patient_id, session_id, exercise_key required"}), 400
+    result = generate_upload_url(patient_id, session_id, exercise_key)
+    return jsonify(result)
 
 
 @app.route("/api/patients", methods=["GET"])

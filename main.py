@@ -1,4 +1,5 @@
 import argparse
+import os
 from datetime import datetime, timezone
 
 import cv2
@@ -110,13 +111,14 @@ def parse_args(argv=None):
     return parser.parse_args(argv)
 
 
-def build_session_record(session_id, exercise_key, started_at, ended_at, video_path, final_value, target_reps, patient_id=None):
+def build_session_record(session_id, exercise_key, started_at, ended_at, video_path, final_value, target_reps, patient_id=None, video_s3_key=None):
     return {
         "session_id": session_id,
         "exercise_key": exercise_key,
         "started_at": started_at,
         "ended_at": ended_at,
         "video_path": video_path,
+        "video_s3_key": video_s3_key,
         "final_count": final_value,
         "target_reached": target_reps is not None and final_value >= target_reps,
         "patient_id": patient_id,
@@ -206,6 +208,17 @@ def main():
         cv2.destroyAllWindows()
 
         if args.session_id:
+            # S3에 영상 업로드 시도
+            video_s3_key = None
+            if args.output and os.path.exists(args.output):
+                try:
+                    from dashboard.s3_client import upload_video_file
+                    patient_id = args.patient_id or "unknown"
+                    video_s3_key = f"videos/{patient_id}/{args.session_id}_{active_key}.webm"
+                    upload_video_file(args.output, video_s3_key)
+                except Exception:
+                    video_s3_key = None  # S3 업로드 실패 시 로컬 경로만 유지
+
             record = build_session_record(
                 session_id=args.session_id,
                 exercise_key=active_key,
@@ -215,6 +228,7 @@ def main():
                 final_value=get_tracker_value(trackers[active_key]),
                 target_reps=args.target_reps,
                 patient_id=args.patient_id,
+                video_s3_key=video_s3_key,
             )
             append_session(args.store, record)
 
