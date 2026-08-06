@@ -53,7 +53,12 @@ from dashboard.data_store import (
 )
 from dashboard.exercise_library import EXERCISE_NAMES
 from dashboard.llm_client import generate_reply
-from video_analyzer import analyze_video, delete_video_file, download_video
+
+# video_analyzer는 cv2/mediapipe를 사용하므로 Lambda에서는 import 시점에 로드하지 않는다.
+# 실제로 영상 분석이 필요한 함수 내부에서 lazy import 한다.
+def _import_video_analyzer():
+    from video_analyzer import analyze_video, delete_video_file, download_video
+    return analyze_video, delete_video_file, download_video
 
 KAKAO_CHAT_SYSTEM_PROMPT = (
     "당신은 재활 운동 앱 'Care Flow'의 컴패니언 캐릭터 '새싹이'입니다. "
@@ -344,6 +349,7 @@ def _advance_exercise(store_path, kakao_user_id, session_state, prefix_text):
 def _analyze_and_store_job(store_path, kakao_user_id, job_id, exercise_key, video_url):
     local_path = os.path.join(tempfile.gettempdir(), f"kakao_video_{uuid.uuid4().hex}.mp4")
     try:
+        analyze_video, delete_video_file, download_video = _import_video_analyzer()
         download_video(video_url, local_path)
         result = analyze_video(local_path, exercise_key)
         update_video_job(
@@ -353,7 +359,11 @@ def _analyze_and_store_job(store_path, kakao_user_id, job_id, exercise_key, vide
     except Exception:
         update_video_job(store_path, kakao_user_id, job_id, status="done", pose_detected=False, final_value=None)
     finally:
-        delete_video_file(local_path)
+        try:
+            _, delete_video_file, _ = _import_video_analyzer()
+            delete_video_file(local_path)
+        except Exception:
+            pass
 
 
 # --- 운동 후 문진 완료 시점: 분석 결과 종합 (즉시 또는 콜백으로 대기) ---
@@ -473,13 +483,18 @@ def _analyze_reshoot_and_callback(store_path, patient_id, kakao_user_id, exercis
     local_path = os.path.join(tempfile.gettempdir(), f"kakao_video_{uuid.uuid4().hex}.mp4")
     exercise_name = EXERCISE_NAMES.get(exercise_key, exercise_key)
     try:
+        analyze_video, delete_video_file, download_video = _import_video_analyzer()
         download_video(video_url, local_path)
         result = analyze_video(local_path, exercise_key)
     except Exception:
         _send_callback(callback_url, "영상을 처리하는 중 문제가 생겼어요. 다시 한 번 시도해주시겠어요?")
         return
     finally:
-        delete_video_file(local_path)
+        try:
+            _, delete_video_file, _ = _import_video_analyzer()
+            delete_video_file(local_path)
+        except Exception:
+            pass
 
     now = datetime.now(timezone.utc).isoformat()
     if result["pose_detected"]:

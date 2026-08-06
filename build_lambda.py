@@ -24,6 +24,7 @@ SOURCE_FILES = [
     "dashboard/hospital_rag.py",
     "dashboard/kakao_skill.py",
     "dashboard/exercise_library.py",
+    "dashboard/knowledge_base.py",
     "dashboard/login.html",
     "dashboard/doctor.html",
     "dashboard/patient.html",

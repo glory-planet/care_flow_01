@@ -15,8 +15,6 @@ stateless-per-frame 구조라 웹캠/파일 구분 없이 재사용 가능하다
 import os
 import urllib.request
 
-import cv2
-
 from main import build_trackers, get_tracker_value
 from pose_detector import PoseDetector
 
@@ -31,10 +29,9 @@ def download_video(url, dest_path):
 
 
 def analyze_video(video_path, exercise_key):
-    """영상 파일을 프레임 단위로 분석해서 반복 횟수와 포즈 인식 여부를 반환한다.
+    """영상 파일을 프레임 단위로 분석해서 반복 횟수와 포즈 인식 여부를 반환한다."""
+    import cv2
 
-    반환값: {"pose_detected": bool, "final_value": int | float}
-    """
     tracker = build_trackers()[exercise_key]
     detector = PoseDetector()
     pose_detected = False

@@ -136,6 +136,11 @@ def serve_assets(filepath):
     return send_from_directory(os.path.join(DASHBOARD_DIR, "assets"), filepath)
 
 
+@app.route("/config.js")
+def serve_config():
+    return send_from_directory(DASHBOARD_DIR, "config.js")
+
+
 @app.route("/api/start-exercise", methods=["POST"])
 def start_exercise():
     data = request.get_json()
