@@ -265,7 +265,9 @@ const EXERCISE_LIBRARY = {
   "7": { name: "오버헤드 스쿼트", unit: "회", guideUrl: "https://www.youtube.com/results?search_query=Overhead+Press+Shoulder+Rehab", joint: "어깨", phase: "만성기(최소 보호기)" },
   "8": { name: "잭점프", unit: "회", guideUrl: "https://youtu.be/5rTFGRGQupI", joint: "무릎", phase: "만성기(최소 보호기)" },
 };
-
+</script>
+<script src="/config.js"></script>
+<script>
 let currentUser = null;
 let patientId = null;
 let assignments = [];
@@ -280,16 +282,16 @@ const AVATAR_STAGES = [
 let currentStage = 0;
 
 async function init() {
-  const meRes = await fetch('/api/me');
-  const me = await meRes.json();
-  if (!me.ok || me.role !== 'patient') { window.location.href = '/'; return; }
-  currentUser = me;
-  patientId = me.patient_id;
-  document.getElementById('brand-tag').textContent = `${me.name} 님의 재활 여정`;
+  // localStorage에서 사용자 정보 확인
+  const user = Auth.getUser();
+  if (!user || user.role !== 'patient') { window.location.href = '/login.html'; return; }
+  currentUser = { ok: true, ...user };
+  patientId = user.patient_id;
+  document.getElementById('brand-tag').textContent = `${user.name} 님의 재활 여정`;
 
   const [assignRes, sessRes] = await Promise.all([
-    fetch(`/api/patients/${patientId}/assignments`),
-    fetch(`/api/patients/${patientId}/sessions`),
+    apiFetch(`/api/patients/${patientId}/assignments`),
+    apiFetch(`/api/patients/${patientId}/sessions`),
   ]);
   assignments = await assignRes.json();
   allSessions = await sessRes.json();
@@ -375,9 +377,8 @@ function renderExercises() {
   list.querySelectorAll('.start-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const key = btn.dataset.key;
-      const res = await fetch('/api/start-exercise', {
+      const res = await apiFetch('/api/start-exercise', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ exercise_key: key, patient_id: patientId }),
       });
       if (res.ok) {
@@ -586,9 +587,8 @@ async function sendMessage() {
   sendBtn.disabled = true;
   inputField.disabled = true;
   try {
-    const res = await fetch('/api/chat', {
+    const res = await apiFetch('/api/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: text }),
     });
     const data = await res.json();
@@ -612,8 +612,9 @@ function appendMsg(role, text) {
 
 // --- 로그아웃 ---
 document.getElementById('logout-btn').addEventListener('click', async () => {
-  await fetch('/api/logout', { method: 'POST' });
-  window.location.href = '/';
+  await apiFetch('/api/logout', { method: 'POST' });
+  Auth.clear();
+  window.location.href = '/login.html';
 });
 
 // --- Start ---

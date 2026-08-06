@@ -366,6 +366,7 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="/config.js"></script>
 <script>
 // joint/phase는 재활 단계 분류 참고용 표기다 (무릎/어깨 재활 프로토콜 표 기준).
 // 급성기(최대 보호기) -> 아급성기(중등도 보호기) -> 만성기(최소 보호기) 순으로 강도가 올라간다.
@@ -389,14 +390,13 @@ let patientStats = {};
 
 // --- Init ---
 async function init() {
-  const meRes = await fetch('/api/me');
-  const me = await meRes.json();
-  if (!me.ok || me.role !== 'doctor') { window.location.href = '/'; return; }
+  const user = Auth.getUser();
+  if (!user || user.role !== 'doctor') { window.location.href = '/login.html'; return; }
 
   // Load patient info
-  const pRes = await fetch(`/api/patients/${patientId}`);
+  const pRes = await apiFetch(`/api/patients/${patientId}`);
   patientInfo = await pRes.json();
-  if (pRes.status === 404) { window.location.href = '/dashboard'; return; }
+  if (pRes.status === 404) { window.location.href = '/doctor.html'; return; }
 
   document.getElementById('patient-name').textContent = `${patientInfo.name} 님`;
   const regDate = patientInfo.registered_at || '';
@@ -405,9 +405,9 @@ async function init() {
 
   // Load sessions & assignments
   const [sessRes, assignRes, statsRes] = await Promise.all([
-    fetch(`/api/patients/${patientId}/sessions`),
-    fetch(`/api/patients/${patientId}/assignments`),
-    fetch(`/api/patients/${patientId}/stats`),
+    apiFetch(`/api/patients/${patientId}/sessions`),
+    apiFetch(`/api/patients/${patientId}/assignments`),
+    apiFetch(`/api/patients/${patientId}/stats`),
   ]);
   allSessions = await sessRes.json();
   assignments = await assignRes.json();
@@ -874,7 +874,7 @@ function renderVideoTab() {
       document.querySelectorAll('.video-exercise-item').forEach(el => el.classList.remove('active'));
       item.classList.add('active');
       if (hasVideo && latest.session_id) {
-        playerArea.innerHTML = `<video controls src="/api/video/${latest.session_id}"></video>`;
+        playerArea.innerHTML = `<video controls src="${API_BASE}/api/video/${latest.session_id}"></video>`;
       } else {
         playerArea.innerHTML = '<p class="no-video-msg">녹화된 영상이 없습니다.</p>';
       }
@@ -959,8 +959,9 @@ function showToast(msg) {
 
 // --- Logout ---
 document.getElementById('logout-btn').addEventListener('click', async () => {
-  await fetch('/api/logout', { method: 'POST' });
-  window.location.href = '/';
+  await apiFetch('/api/logout', { method: 'POST' });
+  Auth.clear();
+  window.location.href = '/login.html';
 });
 
 // --- Start ---

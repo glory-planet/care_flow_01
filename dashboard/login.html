@@ -207,6 +207,7 @@
   </form>
 </div>
 
+<script src="/config.js"></script>
 <script>
   const form = document.getElementById('login-form');
   const errorMsg = document.getElementById('error-msg');
@@ -224,16 +225,18 @@
     }
 
     try {
-      const res = await fetch('/api/login', {
+      const res = await apiFetch('/api/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
 
       if (data.ok) {
-        // 로그인 성공 - 역할에 따라 리다이렉트
+        // 토큰과 사용자 정보 저장
+        if (data.token) Auth.setToken(data.token);
+        Auth.setUser({ username, role: data.role, name: data.name, patient_id: data.patient_id, patient_ids: data.patient_ids });
+        // 역할에 따라 리다이렉트
         window.location.href = '/dashboard';
       } else {
         errorMsg.textContent = '아이디 또는 비밀번호가 올바르지 않습니다.';

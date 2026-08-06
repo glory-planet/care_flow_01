@@ -361,9 +361,8 @@
     sendBtn.disabled = true;
     inputField.disabled = true;
     try {
-      const res = await fetch('/api/doctor/chat', {
+      const res = await apiFetch('/api/doctor/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text }),
       });
       const data = await res.json();
@@ -386,22 +385,22 @@
   }
 </script>
 
+<script src="/config.js"></script>
 <script>
   const AVATAR_COLORS = ['#45441a', '#7e9da2', '#898433', '#a24a34', '#dc9a3c'];
 
   async function init() {
-    // 현재 사용자 정보
-    const meRes = await fetch('/api/me');
-    const me = await meRes.json();
-    if (!me.ok) {
-      window.location.href = '/';
+    // localStorage에서 사용자 정보 확인
+    const user = Auth.getUser();
+    if (!user || user.role !== 'doctor') {
+      window.location.href = '/login.html';
       return;
     }
 
-    document.getElementById('greeting').textContent = `안녕하세요, ${me.name} 선생님`;
+    document.getElementById('greeting').textContent = `안녕하세요, ${user.name} 선생님`;
 
     // 담당 환자 목록 + 요약 데이터
-    const res = await fetch('/api/doctor/patients-summary');
+    const res = await apiFetch('/api/doctor/patients-summary');
     let patients = await res.json();
     if (!res.ok || !Array.isArray(patients)) {
       console.error('담당 환자 목록을 불러오지 못했습니다:', patients);
@@ -486,8 +485,9 @@
 
   // 로그아웃
   document.getElementById('logout-btn').addEventListener('click', async () => {
-    await fetch('/api/logout', { method: 'POST' });
-    window.location.href = '/';
+    await apiFetch('/api/logout', { method: 'POST' });
+    Auth.clear();
+    window.location.href = '/login.html';
   });
 
   init();
@@ -539,7 +539,7 @@
     lookupStatus.className = 'lookup-status';
 
     try {
-      const res = await fetch(`/api/hospital-lookup/${encodeURIComponent(uid)}`);
+      const res = await apiFetch(`/api/hospital-lookup/${encodeURIComponent(uid)}`);
       if (res.status === 404) {
         lookupStatus.textContent = '일치하는 환자 정보를 찾을 수 없어요. ID를 다시 확인해주세요.';
         lookupStatus.className = 'lookup-status error';
@@ -575,9 +575,8 @@
 
     submitRegisterBtn.disabled = true;
     try {
-      const res = await fetch('/api/patients', {
+      const res = await apiFetch('/api/patients', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
           age: regAgeInput.value ? parseInt(regAgeInput.value) : null,

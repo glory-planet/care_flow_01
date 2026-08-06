@@ -107,7 +107,14 @@ def login():
         "patient_ids": patient_ids,
         "access_token": result["tokens"]["access_token"],
     }
-    return jsonify({"ok": True, "role": role, "name": display_name})
+    return jsonify({
+        "ok": True,
+        "role": role,
+        "name": display_name,
+        "token": result["tokens"]["access_token"],
+        "patient_id": patient_id,
+        "patient_ids": patient_ids,
+    })
 
 
 @app.route("/api/logout", methods=["POST"])
