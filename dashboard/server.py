@@ -27,6 +27,7 @@ from dashboard.kakao_skill import handle_skill_request
 from dashboard.llm_client import generate_reply
 from dashboard.s3_client import generate_upload_url, generate_download_url
 from dashboard.cognito_client import authenticate as cognito_authenticate
+from dashboard.knowledge_base import build_rag_context
 
 PATIENT_NAME = "홍은결"
 DASHBOARD_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -345,8 +346,10 @@ def patient_chat():
     patient_id = user["patient_id"]
 
     context = _build_patient_chat_context(patient_id)
+    rag_context = build_rag_context(message)
+    full_context = context + ("\n\n" + rag_context if rag_context else "")
     try:
-        reply = generate_reply(f"{PATIENT_CHAT_SYSTEM_PROMPT}\n\n{context}", message)
+        reply = generate_reply(f"{PATIENT_CHAT_SYSTEM_PROMPT}\n\n{full_context}", message)
     except Exception:
         app.logger.exception("LLM call failed")
         return jsonify({"error": "llm_unavailable"}), 503
