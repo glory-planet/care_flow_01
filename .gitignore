@@ -7,3 +7,5 @@ __pycache__/
 .claude/
 dashboard/recordings/
 *.pem
+lambda_build/
+lambda_package.zip
