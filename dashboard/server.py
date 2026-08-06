@@ -26,6 +26,7 @@ from dashboard.hospital_rag import lookup_patient_by_unique_id
 from dashboard.kakao_skill import handle_skill_request
 from dashboard.llm_client import generate_reply
 from dashboard.s3_client import generate_upload_url, generate_download_url
+from dashboard.cognito_client import authenticate as cognito_authenticate
 
 PATIENT_NAME = "홍은결"
 DASHBOARD_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -78,17 +79,34 @@ def login():
     data = request.get_json()
     username = data.get("username", "")
     password = data.get("password", "")
-    user = authenticate_user(STORE_PATH, username, password)
-    if user is None:
-        return jsonify({"ok": False, "error": "invalid credentials"})
+
+    # Cognito 인증
+    result = cognito_authenticate(username, password)
+    if not result["authenticated"]:
+        return jsonify({"ok": False, "error": result.get("error", "invalid credentials")})
+
+    groups = result["groups"]
+    role = "doctor" if "doctor" in groups else "patient"
+    user_attrs = result["attributes"]
+    display_name = user_attrs.get("name", username)
+
+    # DynamoDB에서 추가 정보 조회 (patient_id, patient_ids)
+    user_data = authenticate_user(STORE_PATH, username, password)
+    patient_id = None
+    patient_ids = None
+    if user_data:
+        patient_id = user_data.get("patient_id")
+        patient_ids = user_data.get("patient_ids")
+
     session["user"] = {
-        "username": user["username"],
-        "role": user["role"],
-        "name": user["name"],
-        "patient_id": user.get("patient_id"),
-        "patient_ids": user.get("patient_ids"),
+        "username": username,
+        "role": role,
+        "name": display_name,
+        "patient_id": patient_id,
+        "patient_ids": patient_ids,
+        "access_token": result["tokens"]["access_token"],
     }
-    return jsonify({"ok": True, "role": user["role"], "name": user["name"]})
+    return jsonify({"ok": True, "role": role, "name": display_name})
 
 
 @app.route("/api/logout", methods=["POST"])
