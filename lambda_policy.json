@@ -1,0 +1,60 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:BatchWriteItem"
+      ],
+      "Resource": "arn:aws:dynamodb:us-east-1:769456250598:table/CareFlow-*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::careflow-exercise-videos/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "bedrock:InvokeModel"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cognito-idp:InitiateAuth",
+        "cognito-idp:AdminGetUser",
+        "cognito-idp:AdminListGroupsForUser"
+      ],
+      "Resource": "arn:aws:cognito-idp:us-east-1:769456250598:userpool/us-east-1_5NS1dVpbR"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3vectors:QueryVectors",
+        "s3vectors:PutVectors"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
