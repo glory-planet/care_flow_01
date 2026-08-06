@@ -1,0 +1,323 @@
+{
+  "users": [
+    {
+      "username": "doctor1",
+      "password": "demo1234",
+      "role": "doctor",
+      "name": "김정호",
+      "patient_ids": [
+        "52445",
+        "29772",
+        "61750"
+      ]
+    },
+    {
+      "username": "patient1",
+      "password": "demo1234",
+      "role": "patient",
+      "name": "홍은결",
+      "patient_id": "52445"
+    },
+    {
+      "username": "patient2",
+      "password": "demo1234",
+      "role": "patient",
+      "name": "박서준",
+      "patient_id": "29772"
+    },
+    {
+      "username": "patient3",
+      "password": "demo1234",
+      "role": "patient",
+      "name": "이하늘",
+      "patient_id": "61750"
+    }
+  ],
+  "patients": [
+    {
+      "id": "52445",
+      "name": "홍은결",
+      "age": 28,
+      "diagnosis": "좌측 어깨 회전근개 부분파열",
+      "registered_at": "2026-07-15",
+      "registration_number": "52445",
+      "kakao_user_id": null
+    },
+    {
+      "id": "29772",
+      "name": "박서준",
+      "age": 45,
+      "diagnosis": "퇴행성 무릎 관절염 (양측)",
+      "registered_at": "2026-07-20",
+      "registration_number": "29772",
+      "kakao_user_id": null
+    },
+    {
+      "id": "61750",
+      "name": "이하늘",
+      "age": 34,
+      "diagnosis": "요추 추간판 탈출증 (L4-L5)",
+      "registered_at": "2026-07-22",
+      "registration_number": "61750",
+      "kakao_user_id": null
+    },
+    {
+      "id": "95319",
+      "name": "이준호",
+      "age": 62,
+      "diagnosis": "우측 고관절 치환술 후 재활",
+      "registered_at": "2026-07-25",
+      "registration_number": "95319",
+      "kakao_user_id": null
+    },
+    {
+      "id": "16328",
+      "name": "최하은",
+      "age": 19,
+      "diagnosis": "전방십자인대 재건술 후 재활",
+      "registered_at": "2026-07-28",
+      "registration_number": "16328",
+      "kakao_user_id": null
+    }
+  ],
+  "assignments": [
+    {
+      "patient_id": "29772",
+      "exercise_key": "1",
+      "target_reps": 8
+    },
+    {
+      "patient_id": "29772",
+      "exercise_key": "5",
+      "target_reps": 10
+    },
+    {
+      "patient_id": "29772",
+      "exercise_key": "6",
+      "target_reps": 30
+    },
+    {
+      "patient_id": "61750",
+      "exercise_key": "3",
+      "target_reps": 12
+    },
+    {
+      "patient_id": "61750",
+      "exercise_key": "4",
+      "target_reps": 10
+    },
+    {
+      "patient_id": "95319",
+      "exercise_key": "1",
+      "target_reps": 6
+    },
+    {
+      "patient_id": "95319",
+      "exercise_key": "5",
+      "target_reps": 8
+    },
+    {
+      "patient_id": "95319",
+      "exercise_key": "6",
+      "target_reps": 20
+    },
+    {
+      "patient_id": "16328",
+      "exercise_key": "1",
+      "target_reps": 15
+    },
+    {
+      "patient_id": "16328",
+      "exercise_key": "7",
+      "target_reps": 10
+    },
+    {
+      "patient_id": "16328",
+      "exercise_key": "8",
+      "target_reps": 20
+    },
+    {
+      "exercise_key": "1",
+      "target_reps": 12,
+      "target_sets": 3,
+      "video_url": "https://youtube.com/watch?v=test1",
+      "patient_id": "52445"
+    },
+    {
+      "exercise_key": "3",
+      "target_reps": 10,
+      "target_sets": 2,
+      "video_url": "",
+      "patient_id": "52445"
+    },
+    {
+      "exercise_key": "7",
+      "target_reps": 10,
+      "target_sets": 3,
+      "video_url": "",
+      "patient_id": "52445"
+    }
+  ],
+  "sessions": [
+    {
+      "session_id": "5236614e",
+      "patient_id": "52445",
+      "exercise_key": "3",
+      "started_at": "2026-08-02T13:41:55.647871+00:00",
+      "ended_at": "2026-08-02T13:42:06.927147+00:00",
+      "video_path": null,
+      "final_count": 2,
+      "target_reached": false
+    },
+    {
+      "session_id": "16fba694",
+      "patient_id": "52445",
+      "exercise_key": "1",
+      "started_at": "2026-08-02T13:49:33.738878+00:00",
+      "ended_at": "2026-08-02T13:49:41.032858+00:00",
+      "video_path": null,
+      "final_count": 0,
+      "target_reached": false
+    },
+    {
+      "session_id": "35d459cc",
+      "patient_id": "52445",
+      "exercise_key": "3",
+      "started_at": "2026-08-02T14:49:34.064668+00:00",
+      "ended_at": "2026-08-02T14:51:56.362351+00:00",
+      "video_path": null,
+      "final_count": 17,
+      "target_reached": true
+    },
+    {
+      "session_id": "a1b2c3d4",
+      "patient_id": "52445",
+      "exercise_key": "1",
+      "started_at": "2026-08-01T09:00:12.000000+00:00",
+      "ended_at": "2026-08-01T09:03:45.000000+00:00",
+      "video_path": null,
+      "final_count": 12,
+      "target_reached": true
+    },
+    {
+      "session_id": "e5f6a7b8",
+      "patient_id": "52445",
+      "exercise_key": "2",
+      "started_at": "2026-08-01T09:10:00.000000+00:00",
+      "ended_at": "2026-08-01T09:13:22.000000+00:00",
+      "video_path": null,
+      "final_count": 10,
+      "target_reached": true
+    },
+    {
+      "session_id": "bb110022",
+      "patient_id": "29772",
+      "exercise_key": "1",
+      "started_at": "2026-08-01T10:00:00.000000+00:00",
+      "ended_at": "2026-08-01T10:04:12.000000+00:00",
+      "video_path": null,
+      "final_count": 8,
+      "target_reached": true
+    },
+    {
+      "session_id": "bb220033",
+      "patient_id": "29772",
+      "exercise_key": "5",
+      "started_at": "2026-08-02T10:00:00.000000+00:00",
+      "ended_at": "2026-08-02T10:03:50.000000+00:00",
+      "video_path": null,
+      "final_count": 7,
+      "target_reached": false
+    },
+    {
+      "session_id": "bb330044",
+      "patient_id": "29772",
+      "exercise_key": "6",
+      "started_at": "2026-08-03T09:00:00.000000+00:00",
+      "ended_at": "2026-08-03T09:02:30.000000+00:00",
+      "video_path": null,
+      "final_count": 30,
+      "target_reached": true
+    },
+    {
+      "session_id": "cc110022",
+      "patient_id": "61750",
+      "exercise_key": "3",
+      "started_at": "2026-08-02T14:00:00.000000+00:00",
+      "ended_at": "2026-08-02T14:04:00.000000+00:00",
+      "video_path": null,
+      "final_count": 12,
+      "target_reached": true
+    },
+    {
+      "session_id": "cc220033",
+      "patient_id": "61750",
+      "exercise_key": "4",
+      "started_at": "2026-08-03T08:30:00.000000+00:00",
+      "ended_at": "2026-08-03T08:33:00.000000+00:00",
+      "video_path": null,
+      "final_count": 6,
+      "target_reached": false
+    },
+    {
+      "session_id": "dd110022",
+      "patient_id": "95319",
+      "exercise_key": "1",
+      "started_at": "2026-08-01T11:00:00.000000+00:00",
+      "ended_at": "2026-08-01T11:05:00.000000+00:00",
+      "video_path": null,
+      "final_count": 6,
+      "target_reached": true
+    },
+    {
+      "session_id": "dd220033",
+      "patient_id": "95319",
+      "exercise_key": "5",
+      "started_at": "2026-08-02T11:00:00.000000+00:00",
+      "ended_at": "2026-08-02T11:04:00.000000+00:00",
+      "video_path": null,
+      "final_count": 5,
+      "target_reached": false
+    },
+    {
+      "session_id": "dd330044",
+      "patient_id": "95319",
+      "exercise_key": "6",
+      "started_at": "2026-08-03T11:00:00.000000+00:00",
+      "ended_at": "2026-08-03T11:02:00.000000+00:00",
+      "video_path": null,
+      "final_count": 20,
+      "target_reached": true
+    },
+    {
+      "session_id": "ee110022",
+      "patient_id": "16328",
+      "exercise_key": "1",
+      "started_at": "2026-08-01T15:00:00.000000+00:00",
+      "ended_at": "2026-08-01T15:04:30.000000+00:00",
+      "video_path": null,
+      "final_count": 15,
+      "target_reached": true
+    },
+    {
+      "session_id": "ee220033",
+      "patient_id": "16328",
+      "exercise_key": "7",
+      "started_at": "2026-08-02T15:00:00.000000+00:00",
+      "ended_at": "2026-08-02T15:03:00.000000+00:00",
+      "video_path": null,
+      "final_count": 10,
+      "target_reached": true
+    },
+    {
+      "session_id": "ee330044",
+      "patient_id": "16328",
+      "exercise_key": "8",
+      "started_at": "2026-08-03T15:00:00.000000+00:00",
+      "ended_at": "2026-08-03T15:03:30.000000+00:00",
+      "video_path": null,
+      "final_count": 18,
+      "target_reached": false
+    }
+  ]
+}

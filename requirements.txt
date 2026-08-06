@@ -1,0 +1,7 @@
+opencv-python
+mediapipe
+numpy
+pytest
+flask
+boto3
+gunicorn
